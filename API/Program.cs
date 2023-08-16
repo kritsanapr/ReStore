@@ -1,5 +1,6 @@
 using API.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,17 @@ builder.Services.AddDbContext<StoreContext>(opt =>
         opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
     });
 
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder.AllowAnyOrigin()
+                   .AllowAnyMethod()
+                   .AllowAnyHeader()
+                   .WithOrigins("http://localhost:5173");
+        });
+});
 
 var app = builder.Build();
 
@@ -26,6 +37,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("AllowAll");
 
 // app.UseHttpsRedirection();
 
